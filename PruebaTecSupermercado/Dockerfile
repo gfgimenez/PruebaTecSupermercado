@@ -12,6 +12,6 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 # Aquí está el truco: copiamos el jar generado en la etapa "build"
 # Usamos un comodín (*.jar) para que no falle si el nombre cambia un poco
-COPY --from=build /app/target/*.jar app_pruebatecsuper.jar
+COPY --from=build /app/PruebaTecSupermercado/target/*.jar app_pruebatecsuper.jar
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app_pruebatecsuper.jar"]
