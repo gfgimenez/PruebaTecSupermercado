@@ -1,17 +1,22 @@
-# ETAPA 1: Compilación (Build)
-# Usamos una imagen con Maven y JDK para construir el JAR dentro de la nube
+# ETAPA 1: Compilación
 FROM maven:3.8.5-openjdk-17 AS build
 WORKDIR /app
-COPY . .
-# Esto genera el archivo .jar dentro del contenedor de compilación
+
+# Copiamos el contenido de la subcarpeta directamente a /app
+# Nota: El punto final indica que lo pegue en el WORKDIR actual
+COPY PruebaTecSupermercado/ .
+
+# Ahora Maven encontrará el pom.xml directamente en /app
 RUN mvn clean package -DskipTests
 
-# ETAPA 2: Ejecución (Run)
-# Usamos una imagen ligera solo para correr la aplicación
+# ETAPA 2: Ejecución
 FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
-# Aquí está el truco: copiamos el jar generado en la etapa "build"
-# Usamos un comodín (*.jar) para que no falle si el nombre cambia un poco
-COPY --from=build /app/PruebaTecSupermercado/target/*.jar app_pruebatecsuper.jar
+
+# Copiamos el JAR que Maven acaba de generar
+COPY --from=build /app/target/*.jar app_pruebatecsuper.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app_pruebatecsuper.jar"]
+
+# Configuramos para que use el puerto de Railway
+ENTRYPOINT ["java", "-Dserver.port=${PORT}", "-jar", "app_pruebatecsuper.jar"]
